@@ -118,3 +118,32 @@ test(/(?i:\.|\bnuLl)/, ['null', 'NULL']);
 test(/(?i:\.|\bnulL)/, ['null', 'NULL']);
 test(/(?-i:(?i:\.|\bNULL))/, ['null', 'NULL', '.foo'], ['xyz']);
 test(/(?i:(?-i:\.|\bNULL))/, ['NULL', '.foo'], ['null', 'xyz']);
+
+
+// Nodes inside a modifier group deferred to the work list must be compiled with
+// the group's inner flags, not the outer flags.
+test(
+    /^(?i:(?:a|b)(?:c|d)(?:e|f)(?:g|h)(?:i|j)(?:k|l)(?:m|n)X)/,
+    ['acegikmx', 'acegikmX', 'bdfhjlnx', 'bdfhjlnX'],
+    ['acegikmy', 'bdfhjlny']);
+
+// Symmetrically, nodes inside a (?-i:...) group under outer /i must compile
+// case-sensitively even when deferred.
+test(
+    /^(?-i:(?:a|b)(?:c|d)(?:e|f)(?:g|h)(?:i|j)(?:k|l)(?:m|n)x)/i,
+    ['acegikmx', 'bdfhjlnx'],
+    ['acegikmX', 'bdfhjlnX']);
+
+
+// Boundary assertions inside modifier groups with alternations must not leak
+// flags between branches during code generation.
+test(/(?i:\.|\bNULL)/, ['null', 'NULL', 'Null', '.foo'], ['xyz']);
+test(/(?i:\bNULL|\.)/, ['null', 'NULL', '.foo'], ['xyz']);
+test(/(?i:\.|\BNULL)/, ['xnull', 'xNULL'], ['null', 'xyz']);
+test(/(?i:\W|\bNULL)/, ['null', 'NULL', '!'], ['x']);
+test(/(?i:!|\?|\bNULL)/, ['null', 'NULL', '!', '?'], ['x']);
+test(/(?i:\.|\bnUll)/, ['null', 'NULL']);
+test(/(?i:\.|\bnuLl)/, ['null', 'NULL']);
+test(/(?i:\.|\bnulL)/, ['null', 'NULL']);
+test(/(?-i:(?i:\.|\bNULL))/, ['null', 'NULL', '.foo'], ['xyz']);
+test(/(?i:(?-i:\.|\bNULL))/, ['NULL', '.foo'], ['null', 'xyz']);    
