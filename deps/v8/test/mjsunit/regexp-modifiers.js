@@ -118,3 +118,6 @@ test(/(?i:\.|\bnuLl)/, ['null', 'NULL']);
 test(/(?i:\.|\bnulL)/, ['null', 'NULL']);
 test(/(?-i:(?i:\.|\bNULL))/, ['null', 'NULL', '.foo'], ['xyz']);
 test(/(?i:(?-i:\.|\bNULL))/, ['NULL', '.foo'], ['null', 'xyz']);
+
+test(/(?i:x|[a-f])/, ['F']);
+test(/(?i:foo)[x-z]/v, ['Foox', 'fOoz'], ['fooX','FooZ']);
