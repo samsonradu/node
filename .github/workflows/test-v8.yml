@@ -39,12 +39,15 @@ jobs:
         run: ./configure
         
       - name: Bootstrap depot_tools
-        env:
-          DEPOT_TOOLS_UPDATE: 0
         run: |
-          git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git deps/v8/depot_tools
-          cd deps/v8/depot_tools
-          ./ensure_bootstrap
+          DT="$RUNNER_TEMP/depot_tools"
+          git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git "$DT"
+          export PATH="$DT:$PATH"
+          cd "$DT"
+          "$DT/ensure_bootstrap"
+          test -f "$DT/python3_bin_reldir.txt"
+          ln -s "$DT" "$GITHUB_WORKSPACE/deps/v8/depot_tools"
+          echo "$DT" >> "$GITHUB_PATH"
       
       - name: Build V8 and run its tests
         run: make test-v8 V8_EXTRA_TEST_OPTIONS="--variants=default --progress=ci"
