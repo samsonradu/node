@@ -53,4 +53,4 @@ jobs:
         env:
           DEPOT_TOOLS_UPDATE: 0
           DEPOT_TOOLS_METRICS: 0      
-        run: JOBS=$(nproc) make test-v8 V8_EXTRA_TEST_OPTIONS="--variants=default --progress=ci"
+        run: JOBS=$(nproc) make test-v8 V8_EXTRA_TEST_OPTIONS="--variants=default --progress=dots"
