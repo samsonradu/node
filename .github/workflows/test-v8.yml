@@ -1,24 +1,49 @@
-name: C/C++ CI
+name: V8 tests
 
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'deps/v8/**'
+      - 'tools/make-v8.sh'
+      - 'tools/v8/**'
+      - 'Makefile'
+      - '.github/workflows/v8-tests.yml'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'deps/v8/**'
+      - 'tools/make-v8.sh'
+      - 'tools/v8/**'
+      - 'Makefile'
+      - '.github/workflows/v8-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  build:
-
+  test-v8:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 360
     steps:
-    - uses: actions/checkout@v4
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make v8
-      run: make v8      
-    - name: make test-v8
-      run: make test-v8
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Configure
+        run: ./configure
+        
+      - name: Bootstrap depot_tools
+        env:
+          DEPOT_TOOLS_UPDATE: 0
+        run: |
+          git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git deps/v8/depot_tools
+          deps/v8/depot_tools/ensure_bootstrap
       
+      - name: Build V8 and run its tests
+        run: make test-v8 V8_EXTRA_TEST_OPTIONS="--variants=default --progress=ci"
