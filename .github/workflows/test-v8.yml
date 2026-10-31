@@ -2,7 +2,7 @@ name: V8 tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main","v24.x-test-failure" ]
     paths:
       - 'deps/v8/**'
       - 'tools/make-v8.sh'
